@@ -25,7 +25,7 @@ begin
 end;
 $$;
 
-create function public.discipline_sync_write(expected_revision bigint, operation uuid, snapshot jsonb)
+create or replace function public.discipline_sync_write(expected_revision bigint, operation uuid, snapshot jsonb)
 returns jsonb language plpgsql security invoker set search_path = ''
 as $$
 declare uid uuid := auth.uid(); doc public.discipline_sync_documents%rowtype;
@@ -39,15 +39,18 @@ begin
  or jsonb_typeof(snapshot->'v6'->'categories') is distinct from 'array'
  then raise invalid_parameter_value using message='Invalid snapshot'; end if;
  if octet_length(snapshot::text)>3145728 then raise program_limit_exceeded using message='Snapshot exceeds 3MB';end if;
+ if snapshot#>'{v6,featureSchema}' is not null and jsonb_typeof(snapshot#>'{v6,featureSchema}') <> 'number' then raise invalid_parameter_value using message='Invalid feature schema';end if;
  if expected_revision=0 then
   insert into public.discipline_sync_documents(user_id,revision,payload,operation_id)
   values(uid,1,snapshot,operation) on conflict(user_id) do nothing returning * into doc;
  else
   update public.discipline_sync_documents set revision=revision+1,payload=snapshot,operation_id=operation,updated_at=now()
-  where user_id=uid and revision=expected_revision returning * into doc;
+  where user_id=uid and revision=expected_revision
+  and coalesce((payload#>>'{v6,featureSchema}')::numeric,1)<=coalesce((snapshot#>>'{v6,featureSchema}')::numeric,1) returning * into doc;
  end if;
  if found then return jsonb_build_object('owner',uid,'revision',doc.revision,'updatedAt',doc.updated_at);end if;
  select * into doc from public.discipline_sync_documents where user_id=uid;
+ if found and coalesce((doc.payload#>>'{v6,featureSchema}')::numeric,1)>coalesce((snapshot#>>'{v6,featureSchema}')::numeric,1) then raise invalid_parameter_value using message='APP_UPDATE_REQUIRED';end if;
  if found and doc.operation_id=operation then return jsonb_build_object('owner',uid,'revision',doc.revision,'replayed',true);end if;
  return jsonb_build_object('conflict',true,'revision',coalesce(doc.revision,0));
 end;
@@ -56,5 +59,3 @@ revoke all on function public.discipline_sync_read() from public, anon;
 revoke all on function public.discipline_sync_write(bigint,uuid,jsonb) from public, anon;
 grant execute on function public.discipline_sync_read() to authenticated;
 grant execute on function public.discipline_sync_write(bigint,uuid,jsonb) to authenticated;
-
-
