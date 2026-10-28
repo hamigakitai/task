@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const handlers=new Map(),added=[],cached=new Map([['https://hamigakitai.github.io/task/index.html',new Response('cached-app')]]);
+const context={URL,Response,self:{location:{href:'https://hamigakitai.github.io/task/sw.js'},addEventListener:(name,fn)=>handlers.set(name,fn),skipWaiting(){},clients:{claim(){}}},caches:{async open(){return {async addAll(items){added.push(...items)},async put(key,value){cached.set(key,value)}}},async match(key){return cached.get(typeof key==='string'?key:key.url)?.clone()},async keys(){return []},async delete(){}},fetch:async()=>{throw Error('offline')}};
+vm.createContext(context);vm.runInContext(fs.readFileSync('sw.js','utf8'),context);
+let install;handlers.get('install')({waitUntil:p=>install=p});await install;assert(added.includes('https://hamigakitai.github.io/task/argument-review.webmanifest'));
+let response;handlers.get('fetch')({request:{method:'GET',mode:'navigate',url:'https://hamigakitai.github.io/task/?view=argument-review'},respondWith:p=>response=p});assert.equal(await (await response).text(),'cached-app');
+response=null;handlers.get('fetch')({request:{method:'GET',mode:'navigate',url:'https://example.com/?view=argument-review'},respondWith:p=>response=p});assert.equal(response,null);
+const manifest=JSON.parse(fs.readFileSync('argument-review.webmanifest','utf8').replace(/^\uFEFF/,''));assert.equal(manifest.start_url,'./?view=argument-review');assert.equal(manifest.scope,'./');
+console.log('PASS: direct review navigation uses cached app while offline; external navigation is not intercepted; review manifest launches the correct view.');
