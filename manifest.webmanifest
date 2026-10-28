@@ -1,7 +1,7 @@
 {
   "name": "Daily Discipline",
   "short_name": "Discipline",
-  "description": "Daily self-management",
+  "description": "毎日の予定・やること・習慣・日記をまとめて管理",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
