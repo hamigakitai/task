@@ -1,0 +1,25 @@
+{
+  "name": "Daily Discipline — 論証",
+  "short_name": "論証",
+  "description": "自分の論証を覚え、復習する",
+  "start_url": "./?view=argument-review",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8f9f7",
+  "theme_color": "#f8f9f7",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "./?view=argument-review"
+}
