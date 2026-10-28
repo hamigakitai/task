@@ -91,6 +91,8 @@ html,body{min-width:0}.direction-card{background:linear-gradient(125deg,#edf4e8,
 
 /* Both Today study panels share a fixed outer size; only their lists scroll. */
 .smart-study>.school-focus,.smart-study>.law-daily-card{height:248px;min-height:248px;max-height:248px;padding:12px;display:flex;flex-direction:column;overflow:hidden;align-self:stretch}.smart-study>.school-focus>.card-head,.smart-study>.law-daily-card>.card-head{flex:none;margin-bottom:8px}.school-focus>.school-columns{flex:none}.school-focus>.school-deadlines{flex:1;min-height:0;max-height:none;overflow-y:auto}.law-daily-card>.smart-label{flex:none;margin:4px 0 8px}.law-daily-list{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;overscroll-behavior:contain}.law-daily-card>.flow-link-note{flex:none;font-size:10px;line-height:1.5;margin:8px 0 0}.law-daily-list>.smart-empty{font-size:11px;line-height:1.6;margin:5px 0;padding:4px 0}@media(max-width:600px){.smart-study>.school-focus,.smart-study>.law-daily-card{height:248px;min-height:248px;max-height:248px;padding:9px}.law-daily-list>.smart-empty{font-size:10px}}
+/* Law content defines the row height; school follows without expanding it. */
+.smart-study{align-items:stretch}.smart-study>.school-focus,.smart-study>.law-daily-card{height:auto;min-height:248px;max-height:none;overflow:visible;align-self:stretch}.school-focus>.school-deadlines{height:0;flex:1 1 0;min-height:0;max-height:none;overflow-y:auto}.law-daily-list{height:auto;flex:0 0 auto;min-height:auto;max-height:none;overflow:visible}.law-daily-card>.flow-link-note{margin-top:auto;padding-top:8px}.law-daily-list .law-plan-item strong,.law-daily-list .law-plan-item small{white-space:pre-wrap;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
 
 </style>
 </head>
