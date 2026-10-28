@@ -20,5 +20,13 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "論証の復習",
+      "short_name": "論証",
+      "description": "今日の論証を復習する",
+      "url": "./?view=argument-review"
+    }
   ]
 }
