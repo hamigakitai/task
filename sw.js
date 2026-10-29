@@ -1,8 +1,8 @@
-const CACHE='discipline-task-widget-v17';
+const CACHE='discipline-task-standard-v18';
 const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js';
 const ROOT=new URL('./',self.location.href);
 const INDEX=new URL('./index.html',ROOT).href;
-const ASSETS=['./','./index.html','./manifest.webmanifest','./argument-review.webmanifest','./widget-setup.html','./daily-discipline-widget.js'].map(p=>new URL(p,ROOT).href);
+const ASSETS=['./','./index.html','./manifest.webmanifest','./argument-review.webmanifest'].map(p=>new URL(p,ROOT).href);
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll([...ASSETS,SDK])).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>(k.startsWith('discipline-task-')||k==='daily-discipline-pwa-v1')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
