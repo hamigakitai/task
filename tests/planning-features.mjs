@@ -216,3 +216,16 @@ ct.selectTaskDay(cd,false);ct.useAutomaticTaskDay(false);fake=next+'T21:00:00';c
 const oldSnapshot=JSON.stringify(t.s.snapshots[old]);t.selectTaskDay(old,false);t.persist();assert.equal(JSON.stringify(t.s.snapshots[old]),oldSnapshot);console.log('PASS: viewing a past date preserves its historical rows and checks.');
 
 }
+// Replan unfinished work directly from its current day's editor.
+{
+const direct=device('direct-task-replan',true),a=direct.t,c=direct.context,d=a.now(),tomorrow=a.shift(d,1),old=a.shift(d,-3);
+const manual={id:'replan-manual',date:d,title:'未完了を明日に',category:'GENERAL',goal:30};a.s.tasks=[manual];a.s.snapshots[d]=[{...manual}];a.s.checks[d]={};a.persist();
+let planned=a.saveTimedTask({id:manual.id,date:tomorrow,title:manual.title,scheduled:true,start:'14:00',end:'14:30'});assert(!planned.error);assert.equal(a.taskDay(),d,'saving data does not depend on switching the list first');assert.equal(planned.task.carryOriginId,manual.id);assert.equal(planned.event.date,tomorrow);assert.equal(a.s.tasks.find(t=>t.id===manual.id).date,d);assert(!a.s.checks[d][manual.id]);assert.equal(a.s.snapshots[tomorrow].filter(t=>t.carryOriginId===manual.id).length,1);
+let again=a.saveTimedTask({id:manual.id,date:tomorrow,title:'明日の実行内容',scheduled:true,start:'15:00',end:'15:30'});assert(!again.error);assert.equal(again.task.id,planned.task.id);assert.equal(a.events(tomorrow).filter(e=>e.sourceId===planned.task.id).length,1);assert.equal(a.taskAppointments(again.task,tomorrow)[0].start,'15:00');
+const original=JSON.stringify(a.packCloudState());assert(a.saveTimedTask({id:manual.id,date:tomorrow,title:'無効な時間',scheduled:true,start:'17:00',end:'16:00'}).error);assert.equal(JSON.stringify(a.packCloudState()),original);
+a.X.actions.push({id:'replan-law',date:d,title:'民法の予定',subject:'civil',field:'法律学習',minutes:30,done:false});a.s.snapshots[old]=[{id:'replan-old',date:old,title:'数日前の未完了',category:'GENERAL',goal:20}];a.s.checks[old]={};a.persist();const law=a.s.snapshots[d].find(t=>t.linkId==='replan-law'),carry=a.s.snapshots[d].find(t=>t.carryOriginId==='replan-old');
+for(const [task,start,end] of [[law,'16:00','16:30'],[carry,'17:00','17:20']]){const r=a.saveTimedTask({id:task.id,date:tomorrow,title:task.title,scheduled:true,start,end});assert(!r.error);assert.equal(r.event.date,tomorrow);assert.equal(r.task.carryOriginDate,task.carryOriginDate||d);assert.equal(a.s.snapshots[tomorrow].filter(t=>t.id===r.task.id).length,1)}
+assert.equal(a.X.actions.find(v=>v.id==='replan-law').date,d);assert(!a.X.actions.find(v=>v.id==='replan-law').done);assert(a.setTaskCompletion(d,manual.id,true).ok);assert(!a.s.snapshots[tomorrow].some(t=>t.carryOriginId===manual.id));assert(!a.events(tomorrow).some(e=>e.sourceId===planned.task.id));
+const failingBefore=JSON.stringify(a.packCloudState());c.console={...console,error(){}};c.localStorage.setItem=()=>{throw Error('full')};assert(a.saveTimedTask({id:law.id,date:tomorrow,title:'保存に失敗',scheduled:true,start:'18:00',end:'18:30'}).error);assert.equal(JSON.stringify(a.packCloudState()),failingBefore);
+console.log('PASS: editing today can schedule tomorrow directly; manual, linked law and older carry preserve origins; repeated saves update one appointment; early completion removes tomorrow copy; invalid and failed saves roll back.');
+}
