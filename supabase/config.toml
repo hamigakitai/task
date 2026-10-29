@@ -1,0 +1,3 @@
+# The handler verifies user JWTs for management and hashed scoped tokens for reads.
+[functions.discipline-widget]
+verify_jwt = false
