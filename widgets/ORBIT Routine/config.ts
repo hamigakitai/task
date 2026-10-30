@@ -1,0 +1,6 @@
+export const ENDPOINT = 'https://vsdewycqxmfuwmacmftq.supabase.co/functions/v1/orbit-checks'
+export const KIND: 'law' | 'routine' = 'routine'
+export const TITLE = 'ルーティン'
+export const TOKEN_KEY = 'orbit-widget-connection'
+export const CACHE_KEY = 'orbit-widget-view'
+export const ERROR_KEY = 'orbit-widget-error'
