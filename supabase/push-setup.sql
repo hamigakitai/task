@@ -1,0 +1,13 @@
+create extension if not exists pg_cron;
+create extension if not exists pg_net with schema extensions;
+create table public.discipline_push_config(id text primary key check(id='main'),cron_secret text not null default (gen_random_uuid()::text||gen_random_uuid()::text),public_key text,private_key text);
+insert into public.discipline_push_config(id) values('main');
+create table public.discipline_push_devices(id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete cascade,endpoint_hash text not null unique,subscription jsonb not null,enabled boolean not null default true,event_enabled boolean not null default true,plan_enabled boolean not null default true,lead_minutes integer not null default 10 check(lead_minutes in (5,10,15,30)),created_at timestamptz not null default now(),updated_at timestamptz not null default now());
+create index discipline_push_devices_user on public.discipline_push_devices(user_id);
+create table public.discipline_push_deliveries(device_id uuid not null references public.discipline_push_devices(id) on delete cascade,message_key text not null,status text not null check(status in ('sending','sent','failed')),updated_at timestamptz not null default now(),primary key(device_id,message_key));
+alter table public.discipline_push_config enable row level security;
+alter table public.discipline_push_devices enable row level security;
+alter table public.discipline_push_deliveries enable row level security;
+revoke all on public.discipline_push_config,public.discipline_push_devices,public.discipline_push_deliveries from public,anon,authenticated;
+grant all on public.discipline_push_config,public.discipline_push_devices,public.discipline_push_deliveries to service_role;
+select cron.schedule('discipline-push-every-minute','* * * * *',$job$ select net.http_post(url:='https://vsdewycqxmfuwmacmftq.supabase.co/functions/v1/discipline-push',headers:=jsonb_build_object('Content-Type','application/json','x-discipline-cron',(select cron_secret from public.discipline_push_config where id='main')),body:='{"action":"dispatch"}'::jsonb,timeout_milliseconds:=30000) where exists(select 1 from public.discipline_push_devices where enabled); $job$);
