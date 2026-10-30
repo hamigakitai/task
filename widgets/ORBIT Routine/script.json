@@ -2,6 +2,6 @@
   "name": "ORBIT Routine",
   "icon": "checkmark.circle",
   "color": "systemGreen",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ルーティンだけの、直接チェックできる独立ウィジェット"
 }
