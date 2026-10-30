@@ -1,4 +1,4 @@
-const CACHE='discipline-task-orbit-v26';
+const CACHE='discipline-task-orbit-name-v27';
 const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js';
 const ROOT=new URL('./',self.location.href);
 const INDEX=new URL('./index.html',ROOT).href;
@@ -14,5 +14,5 @@ self.addEventListener('fetch',e=>{
  const key=appDocument?INDEX:e.request;
  e.respondWith(fetch(e.request).then(r=>{if(r.ok){const copy=r.clone();caches.open(CACHE).then(c=>c.put(key,copy))}return r}).catch(()=>caches.match(key).then(r=>r||Response.error())));
 });
-self.addEventListener('push',event=>{let data={};try{data=event.data?.json()||{}}catch{}const raw=typeof data.url==='string'?data.url:'./',url=new URL(raw,self.location.href),root=new URL('./',self.location.href);const safe=url.origin===root.origin&&url.pathname.startsWith(root.pathname)?url.href:root.href;event.waitUntil(self.registration.showNotification(String(data.title||'Daily Discipline').slice(0,100),{icon:new URL('./icons/orbit-192.png',self.location.href).href,body:String(data.body||'アプリを開いて予定を確認しましょう。').slice(0,240),tag:String(data.tag||'discipline-update').slice(0,180),data:{url:safe},renotify:false}))});
+self.addEventListener('push',event=>{let data={};try{data=event.data?.json()||{}}catch{}const raw=typeof data.url==='string'?data.url:'./',url=new URL(raw,self.location.href),root=new URL('./',self.location.href);const safe=url.origin===root.origin&&url.pathname.startsWith(root.pathname)?url.href:root.href;event.waitUntil(self.registration.showNotification(String(data.title==='Daily Discipline'?'ORBIT':data.title||'ORBIT').slice(0,100),{icon:new URL('./icons/orbit-192.png',self.location.href).href,body:String(data.body||'アプリを開いて予定を確認しましょう。').slice(0,240),tag:String(data.tag||'discipline-update').slice(0,180),data:{url:safe},renotify:false}))});
 self.addEventListener('notificationclick',event=>{event.notification.close();event.waitUntil((async()=>{const root=new URL('./',self.location.href),url=new URL(event.notification.data?.url||root.href,root);if(url.origin!==root.origin||!url.pathname.startsWith(root.pathname))return;const clientsList=await self.clients.matchAll({type:'window',includeUncontrolled:true});for(const client of clientsList)if(client.url.startsWith(root.href)){await client.focus();client.postMessage({type:'discipline-notification-open',url:url.href});return}await self.clients.openWindow(url.href)})())});
