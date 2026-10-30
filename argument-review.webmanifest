@@ -1,6 +1,6 @@
 {
-  "name": "Daily Discipline — 論証",
-  "short_name": "論証",
+  "name": "ORBIT — 論証",
+  "short_name": "ORBIT 論証",
   "description": "自分の論証を覚え、復習する",
   "start_url": "./?view=argument-review",
   "scope": "./",
