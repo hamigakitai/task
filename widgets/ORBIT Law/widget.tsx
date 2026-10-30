@@ -2,6 +2,7 @@ import { VStack, HStack, Text, Image, Spacer, Button, Widget, Script } from 'scr
 import { load } from './api'
 import { TITLE, KIND } from './config'
 import { SetCheck, Page, Refresh } from './app_intents'
+async function main() {
 const {view,offline,message}=await load()
 const limit=Widget.family==='systemLarge'?5:2,total=view?.items.length||0,pages=Math.max(1,Math.ceil(total/limit)),page=Math.min(Storage.get<number>('orbit-page')||0,pages-1),items=view?.items.slice(page*limit,(page+1)*limit)||[]
 function Display(){return <VStack alignment="leading" spacing={8} widgetBackground="#F6F8F4">
@@ -16,3 +17,5 @@ function Display(){return <VStack alignment="leading" spacing={8} widgetBackgrou
  </VStack>}
 Widget.present(<Display/>,{policy:'after',date:new Date(Date.now()+5*60000)})
 Script.exit()
+}
+main();
