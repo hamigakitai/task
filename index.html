@@ -244,7 +244,7 @@ function renderTimelineEvents(d){
 }
 function renderCalendar(){const d=s.calendarDate,mode=s.calendarMode;const modes=`<div class="segmented" aria-label="カレンダー表示切替">${['日','週','月'].map(m=>`<button type="button" data-action="calendar-mode" data-mode="${m}" class="${m===mode?'selected':''}" aria-pressed="${m===mode}">${({日:'Day',週:'Week',月:'Month'})[m]}</button>`).join('')}</div>`;let content='';if(mode==='日'){
  const outside=events(d).filter(e=>e.end<='05:00'||e.start>='22:00');
- content=`<div class="card"><div class="card-head"><div><div class="section-heading">時間割</div><div class="card-desc">05:00–22:00 · 予定の長さを時間に合わせて表示</div></div></div>
+ content=`<div class="card"><div class="card-head"><div><div class="section-heading">Timeline</div><div class="card-desc">05:00–22:00 · 予定の長さを時間に合わせて表示</div></div></div>
  <div class="timeline">${Array.from({length:17},(_,i)=>i+5).map(h=>{const a=`${p(h)}:00`,b=`${p(h+1)}:00`;return `<div class="time-grid"><div class="time-num num">${a}</div><div class="time-body"><button type="button" class="slot-add" data-action="slot-add" data-date="${d}" data-start="${a}" data-end="${b}" aria-label="${a}から予定を追加">＋</button></div></div>`}).join('')}${renderTimelineEvents(d)}</div>
  ${outside.length?`<div class="line"></div><div class="section-heading" style="margin-bottom:12px">時間外の予定</div>${outside.map(e=>`<button type="button" class="history-row x-colored" style="${eventStyle(e)}" data-action="edit-event" data-date="${d}" data-id="${ESC(e.id)}">${ESC(e.start)}–${ESC(e.end)} ${ESC(e.title)}${repeatMark(e)}</button>`).join('')}`:''}</div>`;
 }
