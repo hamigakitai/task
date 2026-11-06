@@ -696,7 +696,7 @@ const flowCorrectBase=correctTask;correctTask=function(d,id,completed){const t=s
 // Law Exam keeps its daily actions; the existing school card and planner remain available.
 const flowStudyCardBase=studyCard;studyCard=function(field){if(field==='大学')return flowStudyCardBase(field);const actions=X.actions.filter(a=>a.date===now()&&a.field==='法律学習'&&!a.cancelled);return `<section class="card"><div class="card-head"><h2 class="card-title x-bilingual">Law Exam</h2><div class="x-actions">${b('＋追加','edit','data-kind="actions" data-field="法律学習"')}</div></div><div class="smart-label">学習内容</div>${smartActionRows(actions)||'<p class="smart-empty">今日やることを＋追加から決めましょう。</p>'}<p class="flow-link-note">タスクに自動で反映されます。</p></section>`};
 // The task list remains an editable daily list; linked entries share their source's completion.
-todayTasks=function(){const d=taskDay(),list=taskList(d);return panel('タスク',`<p class="flow-help">選択日の予定と、過去のすべての未完了タスクを表示します。チェックを忘れた場合は「実施済みに訂正」から実際に行った日を記録できます。</p><div class="task-list">${list.map((t,i)=>{const appointments=taskAppointments(t,d),time=appointments.map(e=>e.start+'–'+e.end).join(' / '),done=checked(d,t.id);return `<div class="task-row ${done?'is-done':''}"><input class="check" type="checkbox" aria-label="${ESC(t.title)}" data-change="task-check" data-task-date="${d}" data-id="${ESC(t.id)}" ${done?'checked':''}><div class="task-body"><div class="task-name">${ESC(t.title)}</div><div class="task-meta">${carryBadge(t)}${t.linkKind?`<span class="flow-link">${t.linkKind==='event'?'課題の作業予定':ESC(taskSourceLabel(t))}</span>`:ESC(t.category||'GENERAL')}${time?`<span class="flow-time">${ESC(time)}</span>`:t.goal?' · '+minutes(t.goal)+'予定':''}</div></div><div class="flow-task-tools">${t.carryOriginDate?`<button class="btn btn-quiet carry-correct" type="button" data-carry-done="${ESC(t.id)}">実施済みに訂正</button>`:''}<button class="icon-btn" aria-label="上に移動" data-action="task-move" data-id="${ESC(t.id)}" data-dir="-1" ${i===0?'disabled':''}>↑</button><button class="icon-btn" aria-label="下に移動" data-action="task-move" data-id="${ESC(t.id)}" data-dir="1" ${i===list.length-1?'disabled':''}>↓</button><button class="btn btn-quiet" data-action="edit-task" data-id="${ESC(t.id)}">編集</button></div></div>`}).join('')||empty('選択日のタスクを追加しましょう','過去の未完了タスクは、元の日付とともに表示します。')}</div>`,`<div class="x-actions"><button class="btn btn-primary" data-action="new-task">＋追加</button></div>`)};
+todayTasks=function(){const d=taskDay(),list=taskList(d);return panel('タスク',`<p class="flow-help">選択日の予定と、過去のすべての未完了タスクを表示します。チェックを忘れた場合は「実施済みに訂正」から実際に行った日を記録できます。</p><div class="task-list">${list.map((t,i)=>{const appointments=taskAppointments(t,d),time=appointments.map(e=>e.start+'–'+e.end).join(' / '),done=checked(d,t.id);return `<div class="task-row ${done?'is-done':''}"><input class="check" type="checkbox" aria-label="${ESC(t.title)}" data-change="task-check" data-task-date="${d}" data-id="${ESC(t.id)}" ${done?'checked':''}><div class="task-body"><div class="task-name">${ESC(t.title)}</div><div class="task-meta">${carryBadge(t)}${t.linkKind?`<span class="flow-link">${t.linkKind==='event'?'課題の作業予定':ESC(taskSourceLabel(t))}</span>`:ESC(t.category||'GENERAL')}${time?`<span class="flow-time">${ESC(time)}</span>`:t.goal?' · '+minutes(t.goal)+'予定':''}</div></div><div class="flow-task-tools">${t.carryOriginDate?`<button class="btn btn-quiet carry-correct" type="button" data-carry-done="${ESC(t.id)}">実施済みに訂正</button>`:''}<button class="icon-btn" aria-label="上に移動" data-action="task-move" data-id="${ESC(t.id)}" data-dir="-1" ${i===0?'disabled':''}>↑</button><button class="icon-btn" aria-label="下に移動" data-action="task-move" data-id="${ESC(t.id)}" data-dir="1" ${i===list.length-1?'disabled':''}>↓</button><button class="btn btn-quiet" data-action="edit-task" data-id="${ESC(t.id)}">編集</button></div></div>`}).join('')||empty('選択日のタスクを追加しましょう','過去の未完了タスクは、元の日付とともに表示します。')}</div>`,`<div class="x-actions"><button type="button" class="btn btn-quiet" data-todo-copy aria-label="Todoをコピー" ${list.length?'':'disabled'}>コピー</button><button class="btn btn-primary" data-action="new-task">＋追加</button></div>`)};
 // A review can be confirmed once per day; its acknowledgement is synced.
 function confirmYesterday(){const d=shift(now(),-1);X.yesterdayConfirmed[d]={at:new Date().toISOString(),reason:$('review-reason')?.value||'',improve:$('review-improve')?.value||''};persist();renderReview();toast('昨日のチェックを更新して閉じました')}
 const flowReviewBase=renderReview;renderReview=function(){const d=shift(now(),-1);if(X.yesterdayConfirmed[d]){$('review').innerHTML='';return}flowReviewBase();if($('review').innerHTML)$('review').innerHTML=$('review').innerHTML.replace(/<\/section>$/,`<div class="flow-review-footer"><button type="button" class="btn btn-primary" data-flow="confirm-yesterday">更新して閉じる</button></div></section>`)};
@@ -1170,6 +1170,28 @@ function civilTutorMarkup(){const c=civilTutorContext();return `<section class="
 // Law Exam shows the study planner without the ChatGPT preparation card.
 const civilTutorHandleBase=handleX;handleX=function(el){if(el.dataset.x==='civil-tutor-mode'){openCivilTutor(el.dataset.mode);return}return civilTutorHandleBase(el)};
 document.addEventListener('click',async e=>{const el=e.target.closest?.('[data-civil-tutor]');if(!el)return;const action=el.dataset.civilTutor;if(action==='copy'){const text=$('civil-tutor-text')?.value;if(!text)return;try{await navigator.clipboard.writeText(text);$('civil-tutor-status').textContent='コピーしました。Web版ChatGPTの学習用チャットに貼り付けて送信してください。'}catch{$('civil-tutor-text').select();$('civil-tutor-status').textContent='内容を選択しました。コピーしてChatGPTに貼り付けてください。'}return}openCivilTutor(action)});
+
+// Copy only the Todo list currently being viewed; never include journals or goals.
+function todoCopyText(d=taskDay()){
+ const list=taskList(d);
+ const rows=list.map(t=>{
+  const time=taskAppointments(t,d).map(e=>e.start+'–'+e.end).join(' / ')||'時間未定';
+  const carry=t.carryOriginDate?'（'+formatShortDate(t.carryOriginDate)+'からの未完了）':'';
+  return (checked(d,t.id)?'☑ ':'☐ ')+time+'　'+String(t.title||'').replace(/[\r\n]+/g,' ')+carry;
+ });
+ return 'Todo｜'+formatDate(d)+'\n'+rows.join('\n');
+}
+async function copyTodoList(){
+ const d=taskDay();
+ if(!taskList(d).length){toast('コピーするTodoがありません');return}
+ const text=todoCopyText(d);
+ try{await navigator.clipboard.writeText(text);toast('Todoをコピーしました')}
+ catch{
+  $('x-dialog-content').innerHTML=`<div class="modal-head"><h2 class="modal-title">Todoをコピー</h2>${b('✕','close')}</div><p class="muted small">自動でコピーできませんでした。下の文章を選択してコピーしてください。</p><label class="sr-only" for="todo-copy-text">コピーするTodo</label><textarea id="todo-copy-text" readonly style="min-height:220px">${ESC(text)}</textarea>`;
+  $('x-dialog').showModal();$('todo-copy-text').focus();$('todo-copy-text').select();
+ }
+}
+document.addEventListener('click',e=>{if(e.target.closest?.('[data-todo-copy]'))copyTodoList()});
 
 ensure(now());persist();render();let lastDate=now(),lastReviewHour=new Date().getHours();setInterval(()=>{const current=now(),h=new Date().getHours();if(lastDate!==current){lastDate=current;ensure(current);persist();render()}else if(lastReviewHour<5&&h>=5){renderReview()}lastReviewHour=h},1000);
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(err=>console.warn('Service worker unavailable',err));
