@@ -1,4 +1,4 @@
-const CACHE='discipline-task-focused-today-v38';
+const CACHE='discipline-task-simple-headings-v39';
 const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js';
 const ROOT=new URL('./',self.location.href);
 const INDEX=new URL('./index.html',ROOT).href;
