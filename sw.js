@@ -1,4 +1,4 @@
-const CACHE='discipline-task-todo-copy-icon-v43';
+const CACHE='discipline-task-tomorrow-toggle-v44';
 const SDK='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js';
 const ROOT=new URL('./',self.location.href);
 const INDEX=new URL('./index.html',ROOT).href;
